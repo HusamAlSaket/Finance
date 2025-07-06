@@ -1,0 +1,39 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f9f9f9;
+  direction: rtl;
+  padding: 20px;
+  color: #333;
+}
+
+.container {
+  max-width: 900px;
+  margin: auto;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+h2, h3 {
+  color: #006400;
+}
+
+.table-block {
+  margin-bottom: 30px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+th, td {
+  border: 1px solid #ccc;
+  padding: 8px 12px;
+  text-align: right;
+}
+
+th {
+  background-color: #e8f5e9;
+}
