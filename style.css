@@ -4,6 +4,8 @@ body {
   direction: rtl;
   padding: 20px;
   color: #333;
+  margin: 0;
+  min-height: 100vh;
 }
 
 .container {
@@ -12,20 +14,51 @@ body {
   background: white;
   padding: 20px;
   border-radius: 10px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.upload-section {
+  max-width: 900px;
+  margin: auto;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
 h2, h3 {
   color: #006400;
+  margin-bottom: 20px;
+}
+
+h2 {
+  text-align: center;
+  font-size: 2.2em;
+  margin-bottom: 30px;
+  border-bottom: 2px solid #006400;
+  padding-bottom: 15px;
+}
+
+h3 {
+  font-size: 1.6em;
 }
 
 .table-block {
   margin-bottom: 30px;
+  background: #fafafa;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
 }
 
 table {
   width: 100%;
   border-collapse: collapse;
   margin-top: 10px;
+  background: white;
+  border-radius: 5px;
+  overflow: hidden;
 }
 
 th, td {
@@ -36,4 +69,617 @@ th, td {
 
 th {
   background-color: #e8f5e9;
+  color: #006400;
+  font-weight: bold;
+}
+
+tbody tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+tbody tr:hover {
+  background-color: #f0f8f0;
+  transition: background-color 0.2s ease;
+}
+
+/* Upload Section Styling */
+hr {
+  border: none;
+  height: 2px;
+  background: #006400;
+  margin: 30px 0;
+  border-radius: 1px;
+}
+
+#uploadForm {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 10px;
+  border: 2px dashed #006400;
+  text-align: center;
+  margin: 20px 0;
+  transition: all 0.3s ease;
+}
+
+#uploadForm:hover {
+  border-color: #004d00;
+  background: #f0f8f0;
+}
+
+#fileInput {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 16px;
+  margin: 10px;
+  background: white;
+  width: 350px;
+  max-width: 100%;
+}
+
+#fileInput:focus {
+  outline: none;
+  border-color: #006400;
+  box-shadow: 0 0 5px rgba(0, 100, 0, 0.3);
+}
+
+button[type="submit"] {
+  background: #006400;
+  color: white;
+  padding: 12px 25px;
+  border: none;
+  border-radius: 20px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin: 10px;
+}
+
+button[type="submit"]:hover {
+  background: #004d00;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 100, 0, 0.3);
+}
+
+#uploadedFiles {
+  margin-top: 25px;
+}
+
+#uploadedFiles h4 {
+  color: #006400;
+  margin-bottom: 15px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #006400;
+}
+
+#fileList {
+  display: grid;
+  gap: 15px;
+}
+
+.file-item {
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  border-left: 4px solid #006400;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.file-item:hover {
+  background: #f5f5f5;
+  transform: translateX(-5px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.file-icon {
+  font-size: 24px;
+}
+
+.file-name {
+  font-weight: 600;
+  color: #333;
+}
+
+.file-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  min-width: 100px;
+  justify-content: center;
+}
+
+.btn-download {
+  background: #006400;
+  color: white;
+}
+
+.btn-download:hover {
+  background: #004d00;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 100, 0, 0.3);
+}
+
+.btn-delete {
+  background: #dc3545;
+  color: white;
+}
+
+.btn-delete:hover {
+  background: #c82333;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(220, 53, 69, 0.3);
+}
+
+.btn-copy {
+  background: #17a2b8;
+  color: white;
+}
+
+.btn-copy:hover {
+  background: #138496;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(23, 162, 184, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  body {
+    padding: 10px;
+  }
+  
+  .container, .upload-section {
+    padding: 20px;
+  }
+  
+  table {
+    font-size: 14px;
+  }
+  
+  th, td {
+    padding: 8px 10px;
+  }
+  
+  h2 {
+    font-size: 2em;
+  }
+  
+  #fileInput {
+    width: 100%;
+    max-width: 280px;
+  }
+  
+  .file-item {
+    flex-direction: column;
+    gap: 10px;
+    text-align: center;
+  }
+  
+  .file-actions {
+    justify-content: center;
+  }
+}
+
+/* Extraction Results Styles */
+.extraction-section {
+  max-width: 1200px;
+  margin: 20px auto;
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.extraction-tabs {
+  display: flex;
+  border-bottom: 2px solid #006400;
+  margin-bottom: 20px;
+}
+
+.tab-button {
+  background: #f0f0f0;
+  border: none;
+  padding: 12px 24px;
+  margin-left: 5px;
+  cursor: pointer;
+  border-radius: 8px 8px 0 0;
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+  transition: all 0.3s ease;
+}
+
+.tab-button.active {
+  background: #006400;
+  color: white;
+}
+
+.tab-button:hover {
+  background: #228B22;
+  color: white;
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+.results-summary {
+  background: #e8f5e8;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  border-right: 4px solid #006400;
+}
+
+.results-summary h4 {
+  margin: 0 0 10px 0;
+  color: #006400;
+}
+
+.extraction-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.extraction-table th {
+  background: #006400;
+  color: white;
+  padding: 12px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.extraction-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #eee;
+  text-align: center;
+}
+
+.extraction-table tr:hover {
+  background: #f9f9f9;
+}
+
+.extraction-table tr:nth-child(even) {
+  background: #f8f8f8;
+}
+
+.page-header {
+  background: #f0f8f0;
+  padding: 10px 15px;
+  margin: 15px 0 10px 0;
+  border-right: 4px solid #006400;
+  border-radius: 5px;
+}
+
+.page-header h5 {
+  margin: 0;
+  color: #006400;
+  font-size: 18px;
+}
+
+.financial-number {
+  font-weight: bold;
+  color: #006400;
+  background: #f0f8f0;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.explanatory-text {
+  text-align: right;
+  line-height: 1.6;
+  padding: 8px 12px;
+  background: #fafafa;
+  border-right: 3px solid #006400;
+  margin: 5px 0;
+  border-radius: 5px;
+}
+
+.page-summary {
+  display: flex;
+  justify-content: space-between;
+  background: #e8f5e8;
+  padding: 10px 15px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+}
+
+.loading-extraction {
+  text-align: center;
+  padding: 40px;
+  color: #666;
+}
+
+.loading-extraction .spinner {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #006400;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 10px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.extraction-error {
+  background: #ffe6e6;
+  color: #d00;
+  padding: 15px;
+  border-radius: 8px;
+  border-right: 4px solid #d00;
+  margin: 10px 0;
+}
+
+.extraction-success {
+  background: #e6ffe6;
+  color: #006400;
+  padding: 15px;
+  border-radius: 8px;
+  border-right: 4px solid #006400;
+  margin: 10px 0;
+}
+
+/* Financial Statements Form Styles */
+.financial-statements-form {
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.financial-form-header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #006400;
+}
+
+.financial-form-header h3 {
+  color: #006400;
+  margin: 0 0 10px 0;
+  font-size: 24px;
+}
+
+.financial-form-header p {
+  color: #666;
+  margin: 0;
+}
+
+.financial-sections {
+  display: grid;
+  gap: 25px;
+}
+
+.financial-section {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid #e9ecef;
+}
+
+.financial-section h4 {
+  color: #006400;
+  margin: 0 0 20px 0;
+  font-size: 18px;
+  text-align: center;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #006400;
+}
+
+.financial-grid {
+  display: grid;
+  gap: 15px;
+}
+
+.financial-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 15px;
+  align-items: center;
+  padding: 10px;
+  background: #fff;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+}
+
+.financial-row label {
+  font-weight: bold;
+  color: #333;
+  font-size: 14px;
+}
+
+.financial-input {
+  padding: 8px 12px;
+  border: 2px solid #006400;
+  border-radius: 5px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 16px;
+  color: #006400;
+  background: #f0f8f0;
+  direction: ltr;
+}
+
+.financial-input:focus {
+  outline: none;
+  border-color: #004d00;
+  box-shadow: 0 0 5px rgba(0, 100, 0, 0.3);
+}
+
+.extracted-values {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background: #fff;
+}
+
+.extracted-value-row {
+  display: grid;
+  grid-template-columns: 1fr 3fr 1fr 1fr;
+  gap: 10px;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  align-items: center;
+}
+
+.extracted-value-row:hover {
+  background: #f9f9f9;
+}
+
+.extracted-value-row:last-child {
+  border-bottom: none;
+}
+
+.value-number {
+  font-weight: bold;
+  color: #006400;
+  background: #f0f8f0;
+  padding: 4px 8px;
+  border-radius: 4px;
+  text-align: center;
+  direction: ltr;
+}
+
+.value-context {
+  color: #333;
+  font-size: 14px;
+}
+
+.value-page {
+  color: #666;
+  font-size: 12px;
+  text-align: center;
+}
+
+.value-confidence {
+  color: #666;
+  font-size: 12px;
+  text-align: center;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .financial-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  
+  .extracted-value-row {
+    grid-template-columns: 1fr;
+    gap: 5px;
+    text-align: center;
+  }
+  
+  .financial-grid {
+    gap: 10px;
+  }
+}
+
+/* نموذج القائمة المالية */
+.financial-statement-form {
+  max-width: 800px;
+  margin: 20px auto;
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: 2px solid #006400;
+}
+
+.statement-header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 3px solid #006400;
+}
+
+.statement-header h2 {
+  color: #006400;
+  margin: 0;
+  font-size: 2.2em;
+  font-weight: bold;
+}
+
+.form-section {
+  margin-bottom: 25px;
+}
+
+.form-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #006400;
+}
+
+.form-row label {
+  font-weight: bold;
+  color: #333;
+  min-width: 200px;
+  font-size: 1.1em;
+}
+
+.financial-input {
+  flex: 1;
+  padding: 12px 15px;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  font-size: 1.1em;
+  background: #fff;
+  text-align: center;
+  font-weight: bold;
+  color: #006400;
+  margin-right: 15px;
+}
+
+.financial-input:focus {
+  outline: none;
+  border-color: #006400;
+  box-shadow: 0 0 5px rgba(0, 100, 0, 0.3);
+}
+
+.financial-input[readonly] {
+  background: #f0f8f0;
+  color: #006400;
 }

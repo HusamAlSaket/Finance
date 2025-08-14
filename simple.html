@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>البيانات المالية - مبسط</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f9f9f9;
+            direction: rtl;
+            padding: 20px;
+            color: #333;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .financial-form {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            border: 2px solid #006400;
+            margin: 20px 0;
+        }
+
+        .form-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #006400;
+        }
+
+        .form-header h2 {
+            color: #006400;
+            margin: 0;
+            font-size: 2.2em;
+            font-weight: bold;
+        }
+
+        .form-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 4px solid #006400;
+        }
+
+        .form-row label {
+            font-weight: bold;
+            color: #333;
+            min-width: 200px;
+            font-size: 1.1em;
+        }
+
+        .financial-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            font-size: 1.1em;
+            background: #f0f8f0;
+            text-align: center;
+            font-weight: bold;
+            color: #006400;
+            margin-right: 15px;
+        }
+
+        .upload-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .upload-section button {
+            background: #006400;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1.1em;
+            margin: 10px 5px;
+        }
+
+        .upload-section button:hover {
+            background: #004d00;
+        }
+
+        .status {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+
+        .status.success {
+            background: #e8f5e8;
+            color: #2e7d32;
+            border: 1px solid #4caf50;
+        }
+
+        .status.error {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #f44336;
+        }
+
+        .status.info {
+            background: #e3f2fd;
+            color: #1976d2;
+            border: 1px solid #2196f3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="upload-section">
+            <h3>رفع ملف JSON</h3>
+            <input type="file" id="fileInput" accept=".json">
+            <button onclick="processFile()">معالجة الملف</button>
+            <button onclick="loadExistingFile()">تحميل الملف الموجود</button>
+            <div id="status"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="financial-form" id="financialForm" style="display: none;">
+            <div class="form-header">
+                <h2>قائمة المركز المالي</h2>
+            </div>
+            
+            <div class="form-row">
+                <label>الأصول الثابتة:</label>
+                <input type="text" class="financial-input" id="fixed-assets" readonly>
+            </div>
+            
+            <div class="form-row">
+                <label>الأصول المتداولة:</label>
+                <input type="text" class="financial-input" id="current-assets" readonly>
+            </div>
+            
+            <div class="form-row">
+                <label>إجمالي موجودات الشركة:</label>
+                <input type="text" class="financial-input" id="total-assets" readonly>
+            </div>
+            
+            <div class="form-row">
+                <label>إجمالي مطلوبات الشركة:</label>
+                <input type="text" class="financial-input" id="total-liabilities" readonly>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = `status ${type}`;
+            statusDiv.innerHTML = message;
+        }
+
+        function loadExistingFile() {
+            showStatus('جاري تحميل الملف الموجود...', 'info');
+            
+            fetch('upload/ocr_result_2025-08-14T11-30-05-485366 (1).json')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('فشل في تحميل الملف');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    showStatus('تم تحميل الملف بنجاح!', 'success');
+                    extractAndDisplay(data);
+                })
+                .catch(error => {
+                    showStatus('خطأ في تحميل الملف: ' + error.message, 'error');
+                });
+        }
+
+        function processFile() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showStatus('يرجى اختيار ملف JSON', 'error');
+                return;
+            }
+
+            if (!file.name.toLowerCase().endsWith('.json')) {
+                showStatus('يرجى اختيار ملف JSON صحيح', 'error');
+                return;
+            }
+
+            showStatus('جاري قراءة الملف...', 'info');
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const jsonData = JSON.parse(e.target.result);
+                    showStatus('تم قراءة الملف بنجاح!', 'success');
+                    extractAndDisplay(jsonData);
+                } catch (error) {
+                    showStatus('خطأ في قراءة ملف JSON: ' + error.message, 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function extractAndDisplay(ocrData) {
+            showStatus('جاري استخراج البيانات المالية...', 'info');
+
+            // استخراج البيانات محلياً
+            const extractedNumbers = extractFinancialNumbers(ocrData);
+            
+            if (extractedNumbers.length === 0) {
+                showStatus('لم يتم العثور على أرقام مالية في الملف', 'error');
+                return;
+            }
+
+            // ترتيب الأرقام من الأكبر إلى الأصغر
+            extractedNumbers.sort((a, b) => b.value - a.value);
+
+            // ملء النموذج
+            fillFinancialForm(extractedNumbers);
+            
+            // إظهار النموذج
+            document.getElementById('financialForm').style.display = 'block';
+            
+            showStatus(`تم استخراج ${extractedNumbers.length} رقم مالي بنجاح!`, 'success');
+        }
+
+        function extractFinancialNumbers(ocrData) {
+            const numbers = [];
+            
+            if (!Array.isArray(ocrData)) {
+                return numbers;
+            }
+
+            ocrData.forEach(item => {
+                if (item.text && containsValidFinancialNumber(item.text)) {
+                    const value = getFinancialValue(item.text);
+                    if (value >= 1000) { // فقط المبالغ الكبيرة
+                        numbers.push({
+                            text: item.text,
+                            value: value,
+                            page: item.page || 0
+                        });
+                    }
+                }
+            });
+
+            return numbers;
+        }
+
+        function containsValidFinancialNumber(text) {
+            text = text.trim();
+            
+            // استبعاد التواريخ
+            if (/\d{1,2}\s*(كانون|شباط|آذار|نيسان|أيار|حزيران|تموز|آب|أيلول|تشرين|كانون)/.test(text)) {
+                return false;
+            }
+            
+            // استبعاد السنوات
+            if (/^(20[0-9]{2}|٢٠[٠-٩]{2})$/.test(text)) {
+                return false;
+            }
+            
+            // استبعاد أرقام الهاتف والأرقام الطويلة
+            if (/[0-9٠-٩]{8,}/.test(text)) {
+                return false;
+            }
+            
+            // استبعاد أسماء الشركات والعناوين
+            if (/(شركة|للتقنية|القوائم|المالية|تقرير|مدقق|الحسابات|إيضاح|ترخيص|رقم|مبنى|الطابق|مكتب)/.test(text)) {
+                return false;
+            }
+            
+            // البحث عن الأرقام المالية الفعلية
+            return /^[٠-٩]{1,3}(،[٠-٩]{3})*$/.test(text) ||           // أرقام عربية مع فواصل عربية
+                   /^[0-9]{1,3}(,[0-9]{3})*$/.test(text) ||             // أرقام إنجليزية مع فواصل
+                   /^\([٠-٩,،]+\)$/.test(text) ||                       // أرقام بين أقواس
+                   /^[٠-٩,،]+\s*(دينار|ريال|درهم|جنيه)/.test(text);   // أرقام مع عملة
+        }
+
+        function getFinancialValue(text) {
+            // إزالة الفواصل والأقواس والعملات
+            let cleanNumber = text.replace(/[,،\(\)]/g, '').replace(/[^0-9٠-٩]/g, '');
+            
+            // تحويل الأرقام العربية إلى إنجليزية
+            const arabicToEnglish = {
+                '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4',
+                '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9'
+            };
+            
+            cleanNumber = cleanNumber.replace(/[٠-٩]/g, match => arabicToEnglish[match] || match);
+            
+            return parseInt(cleanNumber) || 0;
+        }
+
+        function fillFinancialForm(numbers) {
+            // ملء الحقول بأكبر القيم
+            if (numbers.length > 0) {
+                document.getElementById('total-assets').value = numbers[0].text;
+            }
+            if (numbers.length > 1) {
+                document.getElementById('total-liabilities').value = numbers[1].text;
+            }
+            if (numbers.length > 2) {
+                document.getElementById('fixed-assets').value = numbers[2].text;
+            }
+            if (numbers.length > 3) {
+                document.getElementById('current-assets').value = numbers[3].text;
+            }
+        }
+
+        // تحميل تلقائي عند فتح الصفحة
+        window.onload = function() {
+            loadExistingFile();
+        };
+    </script>
+</body>
+</html>

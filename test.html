@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>اختبار استخراج البيانات</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; direction: rtl; }
+        .result { background: #f0f0f0; padding: 15px; margin: 10px 0; border-radius: 5px; }
+        .error { background: #ffebee; color: #c62828; }
+        .success { background: #e8f5e8; color: #2e7d32; }
+        button { padding: 10px 20px; margin: 5px; background: #006400; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>اختبار النظام</h1>
+    
+    <button onclick="testFileList()">اختبار قائمة الملفات</button>
+    <button onclick="testFileLoad()">اختبار تحميل الملف</button>
+    <button onclick="testExtraction()">اختبار الاستخراج</button>
+    
+    <div id="results"></div>
+
+    <script>
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = `<strong>${new Date().toLocaleTimeString()}</strong>: ${message}`;
+            results.appendChild(div);
+        }
+
+        function testFileList() {
+            log('اختبار قائمة الملفات...');
+            fetch('upload.php?list=1')
+                .then(res => res.json())
+                .then(data => {
+                    log(`النتيجة: ${JSON.stringify(data)}`, 'success');
+                })
+                .catch(err => {
+                    log(`خطأ: ${err.message}`, 'error');
+                });
+        }
+
+        function testFileLoad() {
+            log('اختبار تحميل الملف...');
+            fetch('upload/ocr_result_2025-08-14T11-30-05-485366 (1).json')
+                .then(res => res.json())
+                .then(data => {
+                    log(`تم تحميل الملف بنجاح. عدد العناصر: ${data.length}`, 'success');
+                    if (data.length > 0) {
+                        log(`أول عنصر: ${JSON.stringify(data[0])}`, 'info');
+                    }
+                })
+                .catch(err => {
+                    log(`خطأ في تحميل الملف: ${err.message}`, 'error');
+                });
+        }
+
+        function testExtraction() {
+            log('اختبار الاستخراج...');
+            
+            // أولاً تحميل الملف
+            fetch('upload/ocr_result_2025-08-14T11-30-05-485366 (1).json')
+                .then(res => res.json())
+                .then(ocrData => {
+                    log(`تم تحميل ملف OCR بنجاح`, 'success');
+                    
+                    // إرسال البيانات للاستخراج
+                    return fetch('process_json.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            ocr_data: ocrData,
+                            filename: 'test.json'
+                        })
+                    });
+                })
+                .then(res => res.json())
+                .then(result => {
+                    if (result.success) {
+                        log(`استخراج ناجح! عدد الجداول: ${result.tables.length}`, 'success');
+                        log(`عدد الصفحات التوضيحية: ${result.explanatory.length}`, 'success');
+                        
+                        // عرض بعض الأرقام المستخرجة
+                        if (result.tables.length > 0) {
+                            const firstTable = result.tables[0];
+                            log(`أرقام من الصفحة ${firstTable.page}: ${firstTable.items.map(item => item.text).join(', ')}`, 'info');
+                        }
+                    } else {
+                        log(`فشل الاستخراج: ${result.error}`, 'error');
+                    }
+                })
+                .catch(err => {
+                    log(`خطأ في الاستخراج: ${err.message}`, 'error');
+                });
+        }
+    </script>
+</body>
+</html>

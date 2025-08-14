@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار استخراج البيانات المالية</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>اختبار استخراج البيانات المالية من ملف JSON</h2>
+        
+        <div class="upload-section">
+            <h3>رفع ملف JSON للاستخراج</h3>
+            <form id="uploadForm" enctype="multipart/form-data">
+                <input type="file" name="files[]" id="fileInput" accept=".json" multiple>
+                <button type="submit">رفع واستخراج البيانات</button>
+            </form>
+        </div>
+        
+        <!-- JSON Extraction Results Section -->
+        <div class="extraction-section" id="extractionSection" style="display: none;">
+            <h2>نتائج استخراج البيانات المالية</h2>
+            <div class="extraction-tabs">
+                <button class="tab-button active" onclick="showTab('tables')">الجداول المالية</button>
+                <button class="tab-button" onclick="showTab('explanatory')">النصوص التوضيحية</button>
+            </div>
+            
+            <div id="tablesTab" class="tab-content active">
+                <div class="results-summary" id="tablesSummary"></div>
+                <div class="tables-container" id="tablesContainer"></div>
+            </div>
+            
+            <div id="explanatoryTab" class="tab-content">
+                <div class="results-summary" id="explanatorySummary"></div>
+                <div class="explanatory-container" id="explanatoryContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // إعداد معالج رفع الملفات
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadForm = document.getElementById('uploadForm');
+            if (uploadForm) {
+                uploadForm.addEventListener('submit', handleFileUpload);
+            }
+        });
+
+        // معالجة رفع الملفات
+        async function handleFileUpload(event) {
+            event.preventDefault();
+            
+            const fileInput = document.getElementById('fileInput');
+            const files = fileInput.files;
+            
+            if (files.length === 0) {
+                alert('يرجى اختيار ملف JSON');
+                return;
+            }
+            
+            // فحص إذا كان هناك ملفات JSON
+            const jsonFiles = Array.from(files).filter(file => 
+                file.name.toLowerCase().endsWith('.json')
+            );
+            
+            if (jsonFiles.length === 0) {
+                alert('يرجى اختيار ملف JSON صحيح');
+                return;
+            }
+            
+            try {
+                // معالجة الملفات مباشرة بدون رفع
+                await processJsonExtractions(jsonFiles);
+                alert('تم استخراج البيانات بنجاح!');
+            } catch (error) {
+                console.error('خطأ في معالجة الملفات:', error);
+                alert('حدث خطأ أثناء معالجة الملفات');
+            }
+        }
+
+        // معالجة استخراج البيانات من ملفات JSON
+        async function processJsonExtractions(jsonFiles) {
+            const extractionSection = document.getElementById('extractionSection');
+            extractionSection.style.display = 'block';
+            
+            // إظهار حالة التحميل
+            showExtractionLoading();
+            
+            try {
+                for (const file of jsonFiles) {
+                    const fileContent = await readFileContent(file);
+                    const extractedData = await extractFinancialData(JSON.parse(fileContent));
+                    displayExtractionResults(extractedData, file.name);
+                }
+            } catch (error) {
+                console.error('خطأ في استخراج البيانات:', error);
+                showExtractionError('حدث خطأ أثناء استخراج البيانات المالية: ' + error.message);
+            }
+        }
+
+        // باقي الدوال (نفس ما هو موجود في script.js)
+        // ... (سأنسخ الدوال المطلوبة)
+    </script>
+    
+    <script src="script.js"></script>
+</body>
+</html>

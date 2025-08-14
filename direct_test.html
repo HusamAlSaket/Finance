@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار مباشر لاستخراج البيانات</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h2>اختبار مباشر لاستخراج البيانات المالية</h2>
+        
+        <div class="upload-section">
+            <h3>اختر ملف JSON لاستخراج البيانات</h3>
+            <input type="file" id="jsonFileInput" accept=".json">
+            <button onclick="processSelectedFile()">استخراج البيانات</button>
+        </div>
+        
+        <div id="results" style="margin-top: 20px;"></div>
+    </div>
+
+    <script>
+        async function processSelectedFile() {
+            const fileInput = document.getElementById('jsonFileInput');
+            const resultsDiv = document.getElementById('results');
+            
+            if (!fileInput.files[0]) {
+                alert('يرجى اختيار ملف JSON');
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            
+            try {
+                resultsDiv.innerHTML = '<p>جاري المعالجة...</p>';
+                
+                // قراءة الملف
+                const fileContent = await readFile(file);
+                const jsonData = JSON.parse(fileContent);
+                
+                console.log('JSON data loaded:', jsonData.length, 'items');
+                
+                // إرسال البيانات للمعالجة
+                const response = await fetch('process_json.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json; charset=utf-8'
+                    },
+                    body: JSON.stringify({
+                        jsonData: jsonData,
+                        fileName: file.name
+                    })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    displayResults(result);
+                } else {
+                    throw new Error(result.error || 'خطأ في المعالجة');
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                resultsDiv.innerHTML = `
+                    <div style="background: #ffe6e6; color: #d00; padding: 15px; border-radius: 5px;">
+                        <h4>خطأ في المعالجة</h4>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+        
+        function readFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = e => resolve(e.target.result);
+                reader.onerror = e => reject(e);
+                reader.readAsText(file);
+            });
+        }
+        
+        function displayResults(data) {
+            const resultsDiv = document.getElementById('results');
+            
+            resultsDiv.innerHTML = `
+                <div style="background: #e6ffe6; color: #006400; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+                    <h4>تم الاستخراج بنجاح!</h4>
+                    <p><strong>الملف:</strong> ${data.source_file}</p>
+                    <p><strong>إجمالي الصفحات:</strong> ${data.total_pages}</p>
+                    <p><strong>الصفحات التي تحتوي على أرقام:</strong> ${data.summary.tables_with_numbers_count}</p>
+                    <p><strong>صفحات الإيضاحات:</strong> ${data.summary.explanatory_pages_count}</p>
+                    <p><strong>إجمالي العناصر الرقمية:</strong> ${data.summary.total_numerical_items}</p>
+                    <p><strong>إجمالي النصوص التوضيحية:</strong> ${data.summary.total_explanatory_items}</p>
+                </div>
+                
+                <h3>نموذج من الجداول المالية:</h3>
+                <div style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px;">
+                    ${data.tables_with_numbers.slice(0, 3).map(page => `
+                        <h4>الصفحة ${page.page} (${page.items_count} عنصر)</h4>
+                        <ul>
+                            ${page.content.slice(0, 5).map(item => `
+                                <li>${item.text} (الثقة: ${Math.round(item.confidence * 100)}%)</li>
+                            `).join('')}
+                        </ul>
+                    `).join('')}
+                </div>
+                
+                <h3>نموذج من النصوص التوضيحية:</h3>
+                <div style="max-height: 300px; overflow-y: auto; border: 1px solid #ddd; padding: 10px;">
+                    ${data.explanatory_texts.slice(0, 2).map(page => `
+                        <h4>الصفحة ${page.page} (${page.items_count} نص)</h4>
+                        <ul>
+                            ${page.content.slice(0, 3).map(item => `
+                                <li>${item.text}</li>
+                            `).join('')}
+                        </ul>
+                    `).join('')}
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
