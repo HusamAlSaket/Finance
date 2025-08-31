@@ -454,6 +454,11 @@
             // مسح اختيار الملف
             document.getElementById('fileInput').value = '';
             
+            // مسح البيانات من localStorage
+            localStorage.removeItem('tableData');
+            localStorage.removeItem('currentColumns');
+            localStorage.removeItem('fileName');
+            
             // إعادة تعيين رسالة الحالة
             showStatus('تم مسح النموذج. يرجى اختيار ملف JSON جديد.', 'info');
         }
@@ -479,6 +484,10 @@
                 try {
                     const jsonData = JSON.parse(e.target.result);
                     showStatus('تم قراءة الملف بنجاح!', 'success');
+                    
+                    // حفظ اسم الملف
+                    localStorage.setItem('fileName', file.name);
+                    
                     extractAndDisplay(jsonData);
                 } catch (error) {
                     showStatus('خطأ في قراءة ملف JSON: ' + error.message, 'error');
@@ -501,6 +510,9 @@
             // تحويل البيانات إلى تنسيق الجدول
             tableData = convertJsonToTableData(jsonData, tableStructure);
             currentColumns = tableStructure.columns;
+            
+            // حفظ البيانات في localStorage
+            saveToLocalStorage();
             
             // عرض البيانات في الجدول
             displayTable(tableData, tableStructure.columns);
@@ -690,6 +702,9 @@
 
             cancelEdit();
             
+            // حفظ التغييرات في localStorage
+            saveToLocalStorage();
+            
             // إعادة عرض الجدول مع الأعمدة الصحيحة
             displayTable(tableData, currentColumns);
             
@@ -719,6 +734,9 @@
                 tableData.splice(deleteRowIndex, 1);
                 deleteRowIndex = null;
                 closeModal();
+                
+                // حفظ التغييرات في localStorage
+                saveToLocalStorage();
                 
                 // إعادة عرض الجدول
                 if (tableData.length > 0) {
@@ -773,6 +791,48 @@
             indicator.style.display = 'none';
         }
 
+        // حفظ البيانات في localStorage
+        function saveToLocalStorage() {
+            try {
+                localStorage.setItem('tableData', JSON.stringify(tableData));
+                localStorage.setItem('currentColumns', JSON.stringify(currentColumns));
+            } catch (error) {
+                console.error('خطأ في حفظ البيانات في localStorage:', error);
+            }
+        }
+
+        // تحميل البيانات من localStorage
+        function loadFromLocalStorage() {
+            try {
+                const savedData = localStorage.getItem('tableData');
+                const savedColumns = localStorage.getItem('currentColumns');
+                const savedFileName = localStorage.getItem('fileName');
+                
+                if (savedData && savedColumns) {
+                    tableData = JSON.parse(savedData);
+                    currentColumns = JSON.parse(savedColumns);
+                    
+                    if (tableData.length > 0) {
+                        displayTable(tableData, currentColumns);
+                        
+                        if (savedFileName) {
+                            showStatus(`تم تحميل البيانات المحفوظة من ملف: ${savedFileName}`, 'success');
+                        } else {
+                            showStatus(`تم تحميل ${tableData.length} صف من البيانات المحفوظة`, 'success');
+                        }
+                        return true;
+                    }
+                }
+            } catch (error) {
+                console.error('خطأ في تحميل البيانات من localStorage:', error);
+                // مسح البيانات التالفة
+                localStorage.removeItem('tableData');
+                localStorage.removeItem('currentColumns');
+                localStorage.removeItem('fileName');
+            }
+            return false;
+        }
+
         // Close modal when clicking outside
         window.onclick = function(event) {
             const modal = document.getElementById('deleteModal');
@@ -783,7 +843,12 @@
 
         // Initialize page
         window.onload = function() {
-            showStatus('مرحباً! يرجى اختيار ملف JSON لاستخراج البيانات المالية.', 'info');
+            // محاولة تحميل البيانات المحفوظة
+            const hasLoadedData = loadFromLocalStorage();
+            
+            if (!hasLoadedData) {
+                showStatus('مرحباً! يرجى اختيار ملف JSON لاستخراج البيانات المالية.', 'info');
+            }
         };
     </script>
 </body>
