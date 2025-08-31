@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>استخراج وعرض البيانات في جدول - نظام البيانات المالية</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #006400, #228B22);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .upload-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .upload-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .upload-btn, .process-btn, .clear-btn {
+            background: #006400;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .upload-btn:hover, .process-btn:hover {
+            background: #004d00;
+            transform: translateY(-2px);
+        }
+
+        .clear-btn {
+            background: #dc3545;
+        }
+
+        .clear-btn:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+
+        .file-input {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: white;
+        }
+
+        .status {
+            margin: 15px 0;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .status.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .status.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .status.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+
+        .table-container {
+            padding: 30px;
+            overflow-x: auto;
+        }
+
+        .controls {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .btn-primary {
+            background: #006400;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: #004d00;
+            transform: translateY(-1px);
+        }
+
+        .financial-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+
+        .financial-table th {
+            background: linear-gradient(135deg, #006400 0%, #228B22 100%);
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+            border: none;
+        }
+
+        .financial-table td {
+            padding: 15px 20px;
+            text-align: center;
+            border-bottom: 1px solid #ecf0f1;
+            font-size: 1rem;
+        }
+
+        .financial-table tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+
+        .financial-table tr:hover {
+            background-color: #e8f4fd;
+            transition: background-color 0.3s ease;
+        }
+
+        .financial-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .label-cell {
+            font-weight: 600;
+            color: #2c3e50;
+            text-align: right;
+        }
+
+        .value-cell {
+            font-family: 'Courier New', monospace;
+            font-weight: 500;
+        }
+
+        .empty-cell {
+            color: #bdc3c7;
+            font-style: italic;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .btn-edit {
+            background: #f39c12;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #e67e22;
+            transform: translateY(-1px);
+        }
+
+        .btn-delete {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #c0392b;
+            transform: translateY(-1px);
+        }
+
+        .btn-save {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-save:hover {
+            background: #229954;
+            transform: translateY(-1px);
+        }
+
+        .btn-cancel {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background: #7f8c8d;
+            transform: translateY(-1px);
+        }
+
+        .edit-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 2px solid #006400;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            text-align: center;
+            background: #fff;
+        }
+
+        .edit-input:focus {
+            outline: none;
+            border-color: #004d00;
+            box-shadow: 0 0 5px rgba(0, 100, 0, 0.3);
+        }
+
+        .editing {
+            background-color: #fff3cd !important;
+        }
+
+        .summary {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-left: 5px solid #006400;
+        }
+
+        .summary h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .summary p {
+            color: #7f8c8d;
+            line-height: 1.6;
+        }
+
+        .save-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #27ae60;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            z-index: 1001;
+            display: none;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 30px;
+            border-radius: 10px;
+            width: 400px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .modal-buttons {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .table-container {
+                padding: 15px;
+            }
+            
+            .financial-table th,
+            .financial-table td {
+                padding: 10px 8px;
+                font-size: 0.9rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .btn {
+                padding: 4px 8px;
+                font-size: 0.8rem;
+            }
+
+            .modal-content {
+                width: 90%;
+                margin: 20% auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>استخراج وعرض البيانات في جدول</h1>
+            <p>نظام استخراج البيانات المالية - عرض في جدول قابل للتعديل</p>
+        </div>
+        
+        <div class="upload-section">
+            <div class="upload-controls">
+                <input type="file" id="fileInput" class="file-input" accept=".json" />
+                <button onclick="processFile()" class="upload-btn">معالجة الملف</button>
+                <button onclick="clearForm()" class="clear-btn">مسح النموذج</button>
+            </div>
+            <div id="status">يرجى اختيار ملف JSON لاستخراج البيانات المالية</div>
+        </div>
+        
+        <div class="table-container">
+            <div class="controls">
+                <button class="btn-primary" onclick="saveAllChanges()">حفظ جميع التغييرات</button>
+            </div>
+            
+            <table class="financial-table" id="financialTable">
+                <thead>
+                    <tr>
+                        <th>البيانات</th>
+                        <th>الإجراءات</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- Data will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="summary">
+            <h3>ملخص البيانات</h3>
+            <p>هذا الجدول يعرض البيانات المستخرجة من ملف JSON. يمكنك تعديل وحذف البيانات باستخدام الأزرار المخصصة. النظام يدعم أي بنية JSON تحتوي على بيانات.</p>
+        </div>
+    </div>
+
+    <!-- Save Indicator -->
+    <div id="saveIndicator" class="save-indicator">
+        جاري الحفظ...
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <h3>تأكيد الحذف</h3>
+            <p>هل أنت متأكد من أنك تريد حذف هذا الصف؟</p>
+            <div class="modal-buttons">
+                <button class="btn btn-delete" onclick="confirmDelete()">حذف</button>
+                <button class="btn btn-cancel" onclick="closeModal()">إلغاء</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let tableData = [];
+        let editingRow = null;
+        let deleteRowIndex = null;
+        let currentColumns = [];
+
+        function showStatus(message, type = 'info') {
+            const statusDiv = document.getElementById('status');
+            statusDiv.className = `status ${type}`;
+            statusDiv.innerHTML = message;
+        }
+
+        function clearForm() {
+            // مسح جميع البيانات
+            tableData = [];
+            currentColumns = [];
+            displayTable(tableData, []);
+            
+            // مسح اختيار الملف
+            document.getElementById('fileInput').value = '';
+            
+            // إعادة تعيين رسالة الحالة
+            showStatus('تم مسح النموذج. يرجى اختيار ملف JSON جديد.', 'info');
+        }
+
+        function processFile() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showStatus('يرجى اختيار ملف JSON', 'error');
+                return;
+            }
+
+            if (!file.name.toLowerCase().endsWith('.json')) {
+                showStatus('يرجى اختيار ملف JSON صحيح', 'error');
+                return;
+            }
+
+            showStatus('جاري قراءة الملف...', 'info');
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const jsonData = JSON.parse(e.target.result);
+                    showStatus('تم قراءة الملف بنجاح!', 'success');
+                    extractAndDisplay(jsonData);
+                } catch (error) {
+                    showStatus('خطأ في قراءة ملف JSON: ' + error.message, 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function extractAndDisplay(jsonData) {
+            showStatus('جاري تحليل البيانات...', 'info');
+
+            // تحليل بنية JSON وتحديد الأعمدة
+            const tableStructure = analyzeJsonStructure(jsonData);
+            
+            if (!tableStructure.hasData) {
+                showStatus('لم يتم العثور على بيانات صالحة في الملف', 'error');
+                return;
+            }
+
+            // تحويل البيانات إلى تنسيق الجدول
+            tableData = convertJsonToTableData(jsonData, tableStructure);
+            currentColumns = tableStructure.columns;
+            
+            // عرض البيانات في الجدول
+            displayTable(tableData, tableStructure.columns);
+            
+            showStatus(`تم تحليل ${tableData.length} صف من البيانات بنجاح!`, 'success');
+        }
+
+        function analyzeJsonStructure(jsonData) {
+            const structure = {
+                hasData: false,
+                columns: [],
+                isArray: false,
+                hasLabels: false
+            };
+
+            // التحقق من نوع البيانات
+            if (Array.isArray(jsonData)) {
+                structure.isArray = true;
+                if (jsonData.length > 0) {
+                    structure.hasData = true;
+                    const firstItem = jsonData[0];
+                    
+                    // استخراج الأعمدة من أول عنصر
+                    if (typeof firstItem === 'object' && firstItem !== null) {
+                        structure.columns = Object.keys(firstItem);
+                        
+                        // التحقق من وجود حقل label
+                        if (structure.columns.includes('label')) {
+                            structure.hasLabels = true;
+                        }
+                    }
+                }
+            } else if (typeof jsonData === 'object' && jsonData !== null) {
+                // إذا كان object واحد
+                structure.hasData = true;
+                structure.columns = Object.keys(jsonData);
+                if (structure.columns.includes('label')) {
+                    structure.hasLabels = true;
+                }
+            }
+
+            return structure;
+        }
+
+        function convertJsonToTableData(jsonData, structure) {
+            const tableData = [];
+
+            if (structure.isArray) {
+                // معالجة المصفوفة
+                jsonData.forEach((item, index) => {
+                    if (typeof item === 'object' && item !== null) {
+                        const rowData = {
+                            id: index,
+                            rowIndex: index
+                        };
+
+                        // إضافة جميع الحقول
+                        structure.columns.forEach(column => {
+                            rowData[column] = item[column] || '';
+                        });
+
+                        tableData.push(rowData);
+                    }
+                });
+            } else {
+                // معالجة object واحد
+                const rowData = {
+                    id: 0,
+                    rowIndex: 0
+                };
+
+                structure.columns.forEach(column => {
+                    rowData[column] = jsonData[column] || '';
+                });
+
+                tableData.push(rowData);
+            }
+
+            return tableData;
+        }
+
+        function displayTable(data, columns) {
+            const tableBody = document.getElementById('tableBody');
+            const tableHead = document.querySelector('#financialTable thead tr');
+            
+            // إعادة إنشاء رأس الجدول
+            tableHead.innerHTML = '';
+            
+            // إضافة أعمدة الرأس
+            columns.forEach(column => {
+                const th = document.createElement('th');
+                th.textContent = column;
+                tableHead.appendChild(th);
+            });
+            
+            // إضافة عمود الإجراءات
+            const actionsTh = document.createElement('th');
+            actionsTh.textContent = 'الإجراءات';
+            tableHead.appendChild(actionsTh);
+
+            tableBody.innerHTML = '';
+
+            if (data.length === 0) {
+                const colspan = columns.length + 1; // +1 for actions column
+                tableBody.innerHTML = `<tr><td colspan="${colspan}" style="text-align: center; color: #bdc3c7; font-style: italic;">لا توجد بيانات لعرضها</td></tr>`;
+                return;
+            }
+
+            data.forEach((row, index) => {
+                const tr = document.createElement('tr');
+                tr.setAttribute('data-index', index);
+                
+                // إضافة خلايا البيانات
+                columns.forEach(column => {
+                    const cell = document.createElement('td');
+                    const value = row[column];
+                    
+                    if (column === 'label') {
+                        cell.className = 'label-cell';
+                    } else {
+                        cell.className = 'value-cell';
+                    }
+                    
+                    // التحقق من القيمة الفارغة
+                    if (value === '' || value === null || value === undefined) {
+                        cell.className += ' empty-cell';
+                        cell.textContent = '-';
+                    } else {
+                        cell.textContent = value;
+                    }
+                    
+                    tr.appendChild(cell);
+                });
+
+                // إضافة خلية الإجراءات
+                const actionsCell = document.createElement('td');
+                actionsCell.innerHTML = `
+                    <div class="action-buttons">
+                        <button class="btn btn-edit" onclick="editRow(${index})">تعديل</button>
+                        <button class="btn btn-delete" onclick="deleteRow(${index})">حذف</button>
+                    </div>
+                `;
+                tr.appendChild(actionsCell);
+
+                tableBody.appendChild(tr);
+            });
+        }
+
+        function editRow(index) {
+            if (editingRow !== null) {
+                cancelEdit();
+            }
+
+            editingRow = index;
+            const row = document.querySelector(`tr[data-index="${index}"]`);
+            row.classList.add('editing');
+
+            const cells = row.cells;
+            const columns = Object.keys(tableData[index]).filter(key => key !== 'id' && key !== 'rowIndex');
+            
+            // استبدال كل خلية بإدخال
+            columns.forEach((column, cellIndex) => {
+                const cell = cells[cellIndex];
+                const value = tableData[index][column] || '';
+                cell.innerHTML = `<input type="text" class="edit-input" value="${value}" data-field="${column}">`;
+            });
+
+            // استبدال أزرار الإجراءات
+            const actionsCell = cells[cells.length - 1];
+            actionsCell.innerHTML = `
+                <div class="action-buttons">
+                    <button class="btn btn-save" onclick="saveRow(${index})">حفظ</button>
+                    <button class="btn btn-cancel" onclick="cancelEdit()">إلغاء</button>
+                </div>
+            `;
+        }
+
+        function saveRow(index) {
+            const row = document.querySelector(`tr[data-index="${index}"]`);
+            const inputs = row.querySelectorAll('.edit-input');
+            
+            inputs.forEach(input => {
+                const field = input.dataset.field;
+                const value = input.value.trim();
+                tableData[index][field] = value;
+            });
+
+            cancelEdit();
+            
+            // إعادة عرض الجدول مع الأعمدة الصحيحة
+            displayTable(tableData, currentColumns);
+            
+            showStatus('تم حفظ التغييرات بنجاح', 'success');
+        }
+
+        function cancelEdit() {
+            if (editingRow !== null) {
+                const row = document.querySelector(`tr[data-index="${editingRow}"]`);
+                if (row) {
+                    row.classList.remove('editing');
+                }
+                editingRow = null;
+                
+                // إعادة عرض الجدول
+                displayTable(tableData, currentColumns);
+            }
+        }
+
+        function deleteRow(index) {
+            deleteRowIndex = index;
+            document.getElementById('deleteModal').style.display = 'block';
+        }
+
+        function confirmDelete() {
+            if (deleteRowIndex !== null) {
+                tableData.splice(deleteRowIndex, 1);
+                deleteRowIndex = null;
+                closeModal();
+                
+                // إعادة عرض الجدول
+                if (tableData.length > 0) {
+                    displayTable(tableData, currentColumns);
+                } else {
+                    displayTable([], []);
+                }
+                
+                showStatus('تم حذف الصف بنجاح', 'success');
+            }
+        }
+
+        function closeModal() {
+            document.getElementById('deleteModal').style.display = 'none';
+            deleteRowIndex = null;
+        }
+
+        function saveAllChanges() {
+            // تحضير البيانات للحفظ (إزالة الحقول الداخلية)
+            const dataToSave = tableData.map(row => {
+                const cleanRow = {};
+                Object.keys(row).forEach(key => {
+                    if (key !== 'id' && key !== 'rowIndex') {
+                        cleanRow[key] = row[key];
+                    }
+                });
+                return cleanRow;
+            });
+
+            // إنشاء رابط التحميل
+            const dataStr = JSON.stringify(dataToSave, null, 4);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'updated_table_data.json';
+            link.click();
+            
+            URL.revokeObjectURL(url);
+            
+            showStatus('تم حفظ التغييرات في ملف جديد: updated_table_data.json', 'success');
+        }
+
+        function showSaveIndicator() {
+            const indicator = document.getElementById('saveIndicator');
+            indicator.style.display = 'block';
+        }
+
+        function hideSaveIndicator() {
+            const indicator = document.getElementById('saveIndicator');
+            indicator.style.display = 'none';
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('deleteModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Initialize page
+        window.onload = function() {
+            showStatus('مرحباً! يرجى اختيار ملف JSON لاستخراج البيانات المالية.', 'info');
+        };
+    </script>
+</body>
+</html>
