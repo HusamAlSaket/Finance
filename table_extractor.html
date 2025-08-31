@@ -15,7 +15,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
+            padding: 10px;
         }
 
         .container {
@@ -30,65 +30,65 @@
         .header {
             background: linear-gradient(135deg, #006400, #228B22);
             color: white;
-            padding: 30px;
+            padding: 20px;
             text-align: center;
         }
 
         .header h1 {
-            font-size: 2.5rem;
+            font-size: 1.8rem;
             margin-bottom: 10px;
             font-weight: 300;
         }
 
         .header p {
-            font-size: 1.1rem;
+            font-size: 1rem;
             opacity: 0.9;
         }
 
         .upload-section {
             background: #f8f9fa;
-            padding: 20px;
+            padding: 15px;
             border-bottom: 2px solid #e9ecef;
         }
 
         .upload-controls {
             display: flex;
-            gap: 15px;
+            flex-direction: column;
+            gap: 10px;
             align-items: center;
             justify-content: center;
-            flex-wrap: wrap;
             margin-bottom: 15px;
         }
 
-        .file-info {
-            background: #e8f4fd;
-            padding: 10px;
+        .file-input {
+            width: 100%;
+            max-width: 300px;
+            padding: 12px;
+            border: 2px solid #ddd;
             border-radius: 8px;
-            margin: 10px 0;
-            border-left: 4px solid #006400;
+            background: white;
+            font-size: 14px;
         }
 
-        .file-info h4 {
-            margin: 0 0 5px 0;
-            color: #2c3e50;
-        }
-
-        .file-info p {
-            margin: 0;
-            color: #7f8c8d;
-            font-size: 0.9rem;
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
         }
 
         .upload-btn, .process-btn, .clear-btn {
             background: #006400;
             color: white;
-            padding: 12px 24px;
+            padding: 12px 20px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 1.1em;
+            font-size: 1rem;
             font-weight: bold;
             transition: all 0.3s ease;
+            min-width: 120px;
         }
 
         .upload-btn:hover, .process-btn:hover {
@@ -105,11 +105,24 @@
             transform: translateY(-2px);
         }
 
-        .file-input {
+        .file-info {
+            background: #e8f4fd;
             padding: 10px;
-            border: 2px solid #ddd;
             border-radius: 8px;
-            background: white;
+            margin: 10px 0;
+            border-left: 4px solid #006400;
+        }
+
+        .file-info h4 {
+            margin: 0 0 5px 0;
+            color: #2c3e50;
+            font-size: 1rem;
+        }
+
+        .file-info p {
+            margin: 0;
+            color: #7f8c8d;
+            font-size: 0.9rem;
         }
 
         .status {
@@ -118,6 +131,7 @@
             border-radius: 8px;
             font-weight: bold;
             text-align: center;
+            font-size: 0.9rem;
         }
 
         .status.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
@@ -125,57 +139,60 @@
         .status.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
 
         .table-container {
-            padding: 30px;
-            overflow-x: auto;
+            padding: 15px;
         }
 
         .table-section {
-            margin-bottom: 40px;
+            margin-bottom: 30px;
             background: white;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
             overflow: hidden;
+            border: 1px solid #e9ecef;
         }
 
         .table-header {
             background: linear-gradient(135deg, #006400 0%, #228B22 100%);
             color: white;
-            padding: 20px;
+            padding: 15px;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
+            gap: 10px;
         }
 
         .table-header h3 {
             margin: 0;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
+            text-align: center;
         }
 
         .table-header .file-actions {
             display: flex;
-            gap: 10px;
+            gap: 8px;
+            justify-content: center;
+            flex-wrap: wrap;
         }
 
         .table-content {
-            padding: 20px;
+            padding: 15px;
         }
 
         .controls {
             margin-bottom: 20px;
             display: flex;
-            gap: 10px;
-            justify-content: flex-end;
+            justify-content: center;
         }
 
         .btn-primary {
             background: #006400;
             color: white;
-            padding: 10px 20px;
+            padding: 12px 24px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 1rem;
             transition: all 0.3s ease;
+            font-weight: bold;
         }
 
         .btn-primary:hover {
@@ -183,6 +200,7 @@
             transform: translateY(-1px);
         }
 
+        /* Desktop Table Styles */
         .financial-table {
             width: 100%;
             border-collapse: collapse;
@@ -190,23 +208,24 @@
             border-radius: 10px;
             overflow: hidden;
             box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            display: table;
         }
 
         .financial-table th {
             background: linear-gradient(135deg, #006400 0%, #228B22 100%);
             color: white;
-            padding: 15px 20px;
+            padding: 15px 12px;
             text-align: center;
             font-weight: 600;
-            font-size: 1.1rem;
+            font-size: 1rem;
             border: none;
         }
 
         .financial-table td {
-            padding: 15px 20px;
+            padding: 12px 8px;
             text-align: center;
             border-bottom: 1px solid #ecf0f1;
-            font-size: 1rem;
+            font-size: 0.9rem;
         }
 
         .financial-table tr:nth-child(even) {
@@ -240,19 +259,21 @@
 
         .action-buttons {
             display: flex;
-            gap: 8px;
+            gap: 6px;
             justify-content: center;
             align-items: center;
+            flex-wrap: wrap;
         }
 
         .btn {
-            padding: 6px 12px;
+            padding: 6px 10px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 0.8rem;
             transition: all 0.3s ease;
             font-weight: 500;
+            min-width: 60px;
         }
 
         .btn-edit {
@@ -297,11 +318,11 @@
 
         .edit-input {
             width: 100%;
-            padding: 8px 12px;
+            padding: 6px 8px;
             border: 2px solid #006400;
             border-radius: 5px;
             font-family: 'Courier New', monospace;
-            font-size: 1rem;
+            font-size: 0.9rem;
             text-align: center;
             background: #fff;
         }
@@ -316,6 +337,109 @@
             background-color: #fff3cd !important;
         }
 
+        /* Mobile Card Styles */
+        .mobile-cards {
+            display: none;
+        }
+
+        .card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 15px;
+            border: 1px solid #e9ecef;
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #006400 0%, #228B22 100%);
+            color: white;
+            padding: 12px 15px;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .card-body {
+            padding: 15px;
+        }
+
+        .card-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .card-row:last-child {
+            border-bottom: none;
+        }
+
+        .card-label {
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 0.9rem;
+            flex: 1;
+        }
+
+        .card-value {
+            font-family: 'Courier New', monospace;
+            color: #2c3e50;
+            font-size: 0.9rem;
+            flex: 2;
+            text-align: left;
+            margin-right: 10px;
+        }
+
+        .card-actions {
+            display: flex;
+            gap: 5px;
+            margin-top: 10px;
+        }
+
+        .card-btn {
+            padding: 6px 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            min-width: 50px;
+        }
+
+        .card-btn-edit {
+            background: #f39c12;
+            color: white;
+        }
+
+        .card-btn-delete {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .card-btn-save {
+            background: #27ae60;
+            color: white;
+        }
+
+        .card-btn-cancel {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .card-edit-input {
+            width: 100%;
+            padding: 6px 8px;
+            border: 2px solid #006400;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            text-align: center;
+            background: #fff;
+            margin-bottom: 5px;
+        }
+
         .summary {
             margin-top: 30px;
             padding: 20px;
@@ -327,11 +451,13 @@
         .summary h3 {
             color: #2c3e50;
             margin-bottom: 15px;
+            font-size: 1.1rem;
         }
 
         .summary p {
             color: #7f8c8d;
             line-height: 1.6;
+            font-size: 0.9rem;
         }
 
         .save-indicator {
@@ -345,6 +471,7 @@
             z-index: 1001;
             display: none;
             animation: slideIn 0.3s ease;
+            font-size: 0.9rem;
         }
 
         @keyframes slideIn {
@@ -371,10 +498,11 @@
 
         .modal-content {
             background-color: white;
-            margin: 15% auto;
-            padding: 30px;
+            margin: 20% auto;
+            padding: 20px;
             border-radius: 10px;
-            width: 400px;
+            width: 90%;
+            max-width: 400px;
             text-align: center;
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
@@ -386,43 +514,150 @@
             justify-content: center;
         }
 
+        /* Responsive Design */
         @media (max-width: 768px) {
+            body {
+                padding: 5px;
+            }
+
             .container {
-                margin: 10px;
+                margin: 5px;
                 border-radius: 10px;
             }
             
             .header {
-                padding: 20px;
-            }
-            
-            .header h1 {
-                font-size: 2rem;
-            }
-            
-            .table-container {
                 padding: 15px;
             }
             
-            .financial-table th,
-            .financial-table td {
-                padding: 10px 8px;
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .header p {
                 font-size: 0.9rem;
             }
 
-            .action-buttons {
-                flex-direction: column;
-                gap: 4px;
+            .upload-section {
+                padding: 10px;
             }
 
-            .btn {
-                padding: 4px 8px;
-                font-size: 0.8rem;
+            .upload-controls {
+                gap: 8px;
+            }
+
+            .button-group {
+                gap: 8px;
+            }
+
+            .upload-btn, .process-btn, .clear-btn {
+                padding: 10px 16px;
+                font-size: 0.9rem;
+                min-width: 100px;
+            }
+
+            .table-container {
+                padding: 10px;
+            }
+
+            .table-header {
+                padding: 12px;
+            }
+
+            .table-header h3 {
+                font-size: 1.1rem;
+            }
+
+            .table-content {
+                padding: 10px;
+            }
+
+            /* Hide desktop table, show mobile cards */
+            .financial-table {
+                display: none;
+            }
+
+            .mobile-cards {
+                display: block;
+            }
+
+            .btn-primary {
+                padding: 10px 20px;
+                font-size: 0.9rem;
             }
 
             .modal-content {
-                width: 90%;
-                margin: 20% auto;
+                width: 95%;
+                margin: 30% auto;
+                padding: 15px;
+            }
+
+            .save-indicator {
+                top: 10px;
+                right: 10px;
+                left: 10px;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 1.3rem;
+            }
+
+            .header p {
+                font-size: 0.8rem;
+            }
+
+            .upload-btn, .process-btn, .clear-btn {
+                padding: 8px 12px;
+                font-size: 0.8rem;
+                min-width: 80px;
+            }
+
+            .card-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+
+            .card-value {
+                margin-right: 0;
+                text-align: right;
+            }
+
+            .card-actions {
+                justify-content: center;
+                width: 100%;
+            }
+
+            .table-header .file-actions {
+                flex-direction: column;
+                gap: 5px;
+            }
+
+            .btn {
+                padding: 5px 8px;
+                font-size: 0.7rem;
+                min-width: 50px;
+            }
+        }
+
+        /* Landscape orientation for mobile */
+        @media (max-width: 768px) and (orientation: landscape) {
+            .header {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 1.3rem;
+            }
+
+            .upload-section {
+                padding: 8px;
+            }
+
+            .table-container {
+                padding: 8px;
             }
         }
     </style>
@@ -437,8 +672,10 @@
         <div class="upload-section">
             <div class="upload-controls">
                 <input type="file" id="fileInput" class="file-input" accept=".json" multiple />
-                <button onclick="processFiles()" class="upload-btn">معالجة الملفات</button>
-                <button onclick="clearForm()" class="clear-btn">مسح النموذج</button>
+                <div class="button-group">
+                    <button onclick="processFiles()" class="upload-btn">معالجة الملفات</button>
+                    <button onclick="clearForm()" class="clear-btn">مسح النموذج</button>
+                </div>
             </div>
             <div id="status">يرجى اختيار ملفات JSON لاستخراج البيانات المالية (يمكن اختيار عدة ملفات)</div>
             <div id="fileInfo"></div>
@@ -663,6 +900,12 @@
         function displayTable(data, columns, fileName) {
             const tablesContainer = document.getElementById('tablesContainer');
             
+            // Remove existing table for this file if it exists
+            const existingTableSection = document.getElementById(`table-${fileName.replace(/[^a-zA-Z0-9]/g, '_')}`);
+            if (existingTableSection) {
+                existingTableSection.remove();
+            }
+
             // إنشاء قسم الجدول الجديد
             const tableSection = document.createElement('div');
             tableSection.className = 'table-section';
@@ -683,7 +926,7 @@
             const tableContent = document.createElement('div');
             tableContent.className = 'table-content';
             
-            // إنشاء الجدول
+            // إنشاء الجدول للشاشات الكبيرة
             const table = document.createElement('table');
             table.className = 'financial-table';
             
@@ -757,6 +1000,69 @@
             table.appendChild(tbody);
             tableContent.appendChild(table);
             
+            // إنشاء البطاقات للشاشات الصغيرة
+            const mobileCards = document.createElement('div');
+            mobileCards.className = 'mobile-cards';
+            
+            if (data.length === 0) {
+                mobileCards.innerHTML = `<div style="text-align: center; color: #bdc3c7; font-style: italic; padding: 20px;">لا توجد بيانات لعرضها</div>`;
+            } else {
+                data.forEach((row, index) => {
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    card.setAttribute('data-index', index);
+                    card.setAttribute('data-file', fileName);
+                    
+                    const cardHeader = document.createElement('div');
+                    cardHeader.className = 'card-header';
+                    cardHeader.textContent = `الصف ${index + 1}`;
+                    
+                    const cardBody = document.createElement('div');
+                    cardBody.className = 'card-body';
+                    
+                    // إضافة البيانات للبطاقة
+                    columns.forEach(column => {
+                        const cardRow = document.createElement('div');
+                        cardRow.className = 'card-row';
+                        
+                        const cardLabel = document.createElement('div');
+                        cardLabel.className = 'card-label';
+                        cardLabel.textContent = column;
+                        
+                        const cardValue = document.createElement('div');
+                        cardValue.className = 'card-value';
+                        const value = row[column];
+                        
+                        if (value === '' || value === null || value === undefined) {
+                            cardValue.textContent = '-';
+                            cardValue.style.color = '#bdc3c7';
+                            cardValue.style.fontStyle = 'italic';
+                        } else {
+                            cardValue.textContent = value;
+                        }
+                        
+                        cardRow.appendChild(cardLabel);
+                        cardRow.appendChild(cardValue);
+                        cardBody.appendChild(cardRow);
+                    });
+                    
+                    // إضافة أزرار الإجراءات
+                    const cardActions = document.createElement('div');
+                    cardActions.className = 'card-actions';
+                    cardActions.innerHTML = `
+                        <button class="card-btn card-btn-edit" onclick="editCard(${index}, '${fileName}')">تعديل</button>
+                        <button class="card-btn card-btn-delete" onclick="deleteRow(${index}, '${fileName}')">حذف</button>
+                    `;
+                    cardBody.appendChild(cardActions);
+                    
+                    card.appendChild(cardHeader);
+                    card.appendChild(cardBody);
+                    mobileCards.appendChild(card);
+                });
+            }
+            
+            tableContent.appendChild(mobileCards);
+            
             // تجميع القسم
             tableSection.appendChild(tableHeader);
             tableSection.appendChild(tableContent);
@@ -773,38 +1079,104 @@
             editingRow = index;
             currentEditingFile = fileName;
             const row = document.querySelector(`tr[data-index="${index}"][data-file="${fileName}"]`);
-            row.classList.add('editing');
+            if (row) {
+                row.classList.add('editing');
+            }
 
-            const cells = row.cells;
+            const cells = row ? row.cells : null;
             const tableData = allTablesData[fileName].data;
             const columns = Object.keys(tableData[index]).filter(key => key !== 'id' && key !== 'rowIndex');
             
             // استبدال كل خلية بإدخال
-            columns.forEach((column, cellIndex) => {
-                const cell = cells[cellIndex];
-                const value = tableData[index][column] || '';
-                cell.innerHTML = `<input type="text" class="edit-input" value="${value}" data-field="${column}">`;
-            });
+            if (cells) {
+                columns.forEach((column, cellIndex) => {
+                    const cell = cells[cellIndex];
+                    const value = tableData[index][column] || '';
+                    cell.innerHTML = `<input type="text" class="edit-input" value="${value}" data-field="${column}">`;
+                });
 
-            // استبدال أزرار الإجراءات
-            const actionsCell = cells[cells.length - 1];
-            actionsCell.innerHTML = `
-                <div class="action-buttons">
-                    <button class="btn btn-save" onclick="saveRow(${index}, '${fileName}')">حفظ</button>
-                    <button class="btn btn-cancel" onclick="cancelEdit()">إلغاء</button>
-                </div>
-            `;
+                // استبدال أزرار الإجراءات
+                const actionsCell = cells[cells.length - 1];
+                actionsCell.innerHTML = `
+                    <div class="action-buttons">
+                        <button class="btn btn-save" onclick="saveRow(${index}, '${fileName}')">حفظ</button>
+                        <button class="btn btn-cancel" onclick="cancelEdit()">إلغاء</button>
+                    </div>
+                `;
+            }
+        }
+
+        function editCard(index, fileName) {
+            if (editingRow !== null) {
+                cancelEdit();
+            }
+
+            editingRow = index;
+            currentEditingFile = fileName;
+            const card = document.querySelector(`.card[data-index="${index}"][data-file="${fileName}"]`);
+            if (card) {
+                card.style.backgroundColor = '#fff3cd';
+            }
+
+            const tableData = allTablesData[fileName].data;
+            const columns = Object.keys(tableData[index]).filter(key => key !== 'id' && key !== 'rowIndex');
+            
+            if (card) {
+                const cardBody = card.querySelector('.card-body');
+                cardBody.innerHTML = '';
+                
+                // إضافة حقول الإدخال
+                columns.forEach(column => {
+                    const cardRow = document.createElement('div');
+                    cardRow.className = 'card-row';
+                    
+                    const cardLabel = document.createElement('div');
+                    cardLabel.className = 'card-label';
+                    cardLabel.textContent = column;
+                    
+                    const cardInput = document.createElement('input');
+                    cardInput.type = 'text';
+                    cardInput.className = 'card-edit-input';
+                    cardInput.value = tableData[index][column] || '';
+                    cardInput.setAttribute('data-field', column);
+                    
+                    cardRow.appendChild(cardLabel);
+                    cardRow.appendChild(cardInput);
+                    cardBody.appendChild(cardRow);
+                });
+                
+                // إضافة أزرار الإجراءات
+                const cardActions = document.createElement('div');
+                cardActions.className = 'card-actions';
+                cardActions.innerHTML = `
+                    <button class="card-btn card-btn-save" onclick="saveRow(${index}, '${fileName}')">حفظ</button>
+                    <button class="card-btn card-btn-cancel" onclick="cancelEdit()">إلغاء</button>
+                `;
+                cardBody.appendChild(cardActions);
+            }
         }
 
         function saveRow(index, fileName) {
             const row = document.querySelector(`tr[data-index="${index}"][data-file="${fileName}"]`);
-            const inputs = row.querySelectorAll('.edit-input');
+            const card = document.querySelector(`.card[data-index="${index}"][data-file="${fileName}"]`);
             
-            inputs.forEach(input => {
-                const field = input.dataset.field;
-                const value = input.value.trim();
-                allTablesData[fileName].data[index][field] = value;
-            });
+            if (row) {
+                // حفظ من الجدول
+                const inputs = row.querySelectorAll('.edit-input');
+                inputs.forEach(input => {
+                    const field = input.dataset.field;
+                    const value = input.value.trim();
+                    allTablesData[fileName].data[index][field] = value;
+                });
+            } else if (card) {
+                // حفظ من البطاقة
+                const inputs = card.querySelectorAll('.card-edit-input');
+                inputs.forEach(input => {
+                    const field = input.dataset.field;
+                    const value = input.value.trim();
+                    allTablesData[fileName].data[index][field] = value;
+                });
+            }
 
             cancelEdit();
             
@@ -820,8 +1192,13 @@
         function cancelEdit() {
             if (editingRow !== null && currentEditingFile) {
                 const row = document.querySelector(`tr[data-index="${editingRow}"][data-file="${currentEditingFile}"]`);
+                const card = document.querySelector(`.card[data-index="${editingRow}"][data-file="${currentEditingFile}"]`);
+                
                 if (row) {
                     row.classList.remove('editing');
+                }
+                if (card) {
+                    card.style.backgroundColor = '';
                 }
                 editingRow = null;
                 currentEditingFile = null;
