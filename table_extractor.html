@@ -57,6 +57,26 @@
             align-items: center;
             justify-content: center;
             flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .file-info {
+            background: #e8f4fd;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 4px solid #006400;
+        }
+
+        .file-info h4 {
+            margin: 0 0 5px 0;
+            color: #2c3e50;
+        }
+
+        .file-info p {
+            margin: 0;
+            color: #7f8c8d;
+            font-size: 0.9rem;
         }
 
         .upload-btn, .process-btn, .clear-btn {
@@ -107,6 +127,37 @@
         .table-container {
             padding: 30px;
             overflow-x: auto;
+        }
+
+        .table-section {
+            margin-bottom: 40px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+
+        .table-header {
+            background: linear-gradient(135deg, #006400 0%, #228B22 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .table-header h3 {
+            margin: 0;
+            font-size: 1.3rem;
+        }
+
+        .table-header .file-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .table-content {
+            padding: 20px;
         }
 
         .controls {
@@ -385,29 +436,20 @@
         
         <div class="upload-section">
             <div class="upload-controls">
-                <input type="file" id="fileInput" class="file-input" accept=".json" />
-                <button onclick="processFile()" class="upload-btn">معالجة الملف</button>
+                <input type="file" id="fileInput" class="file-input" accept=".json" multiple />
+                <button onclick="processFiles()" class="upload-btn">معالجة الملفات</button>
                 <button onclick="clearForm()" class="clear-btn">مسح النموذج</button>
             </div>
-            <div id="status">يرجى اختيار ملف JSON لاستخراج البيانات المالية</div>
+            <div id="status">يرجى اختيار ملفات JSON لاستخراج البيانات المالية (يمكن اختيار عدة ملفات)</div>
+            <div id="fileInfo"></div>
         </div>
         
-        <div class="table-container">
+        <div class="table-container" id="tablesContainer">
             <div class="controls">
                 <button class="btn-primary" onclick="saveAllChanges()">حفظ جميع التغييرات</button>
             </div>
             
-            <table class="financial-table" id="financialTable">
-                <thead>
-                    <tr>
-                        <th>البيانات</th>
-                        <th>الإجراءات</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody">
-                    <!-- Data will be loaded here -->
-                </tbody>
-            </table>
+            <!-- Tables will be dynamically added here -->
         </div>
 
         <div class="summary">
@@ -434,10 +476,10 @@
     </div>
 
     <script>
-        let tableData = [];
+        let allTablesData = {}; // Store data for all tables: {fileName: {data: [], columns: []}}
         let editingRow = null;
         let deleteRowIndex = null;
-        let currentColumns = [];
+        let currentEditingFile = null;
 
         function showStatus(message, type = 'info') {
             const statusDiv = document.getElementById('status');
@@ -447,77 +489,101 @@
 
         function clearForm() {
             // مسح جميع البيانات
-            tableData = [];
-            currentColumns = [];
-            displayTable(tableData, []);
+            allTablesData = {};
             
             // مسح اختيار الملف
             document.getElementById('fileInput').value = '';
             
+            // مسح معلومات الملفات
+            document.getElementById('fileInfo').innerHTML = '';
+            
+            // مسح جميع الجداول
+            document.getElementById('tablesContainer').innerHTML = '<div class="controls"><button class="btn-primary" onclick="saveAllChanges()">حفظ جميع التغييرات</button></div>';
+            
             // مسح البيانات من localStorage
-            localStorage.removeItem('tableData');
-            localStorage.removeItem('currentColumns');
-            localStorage.removeItem('fileName');
+            localStorage.removeItem('allTablesData');
             
             // إعادة تعيين رسالة الحالة
-            showStatus('تم مسح النموذج. يرجى اختيار ملف JSON جديد.', 'info');
+            showStatus('تم مسح النموذج. يرجى اختيار ملفات JSON جديدة.', 'info');
         }
 
-        function processFile() {
+        function processFiles() {
             const fileInput = document.getElementById('fileInput');
-            const file = fileInput.files[0];
+            const files = fileInput.files;
             
-            if (!file) {
-                showStatus('يرجى اختيار ملف JSON', 'error');
+            if (!files || files.length === 0) {
+                showStatus('يرجى اختيار ملفات JSON', 'error');
                 return;
             }
 
-            if (!file.name.toLowerCase().endsWith('.json')) {
-                showStatus('يرجى اختيار ملف JSON صحيح', 'error');
-                return;
-            }
-
-            showStatus('جاري قراءة الملف...', 'info');
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const jsonData = JSON.parse(e.target.result);
-                    showStatus('تم قراءة الملف بنجاح!', 'success');
-                    
-                    // حفظ اسم الملف
-                    localStorage.setItem('fileName', file.name);
-                    
-                    extractAndDisplay(jsonData);
-                } catch (error) {
-                    showStatus('خطأ في قراءة ملف JSON: ' + error.message, 'error');
+            // التحقق من جميع الملفات
+            for (let i = 0; i < files.length; i++) {
+                if (!files[i].name.toLowerCase().endsWith('.json')) {
+                    showStatus(`الملف ${files[i].name} ليس ملف JSON صحيح`, 'error');
+                    return;
                 }
-            };
-            reader.readAsText(file);
+            }
+
+            showStatus(`جاري معالجة ${files.length} ملف...`, 'info');
+            
+            // عرض معلومات الملفات
+            displayFileInfo(files);
+            
+            // معالجة كل ملف
+            let processedCount = 0;
+            Array.from(files).forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    try {
+                        const jsonData = JSON.parse(e.target.result);
+                        extractAndDisplay(jsonData, file.name);
+                        processedCount++;
+                        
+                        if (processedCount === files.length) {
+                            showStatus(`تم معالجة جميع الملفات بنجاح! (${files.length} ملف)`, 'success');
+                        }
+                    } catch (error) {
+                        showStatus(`خطأ في قراءة ملف ${file.name}: ${error.message}`, 'error');
+                    }
+                };
+                reader.readAsText(file);
+            });
         }
 
-        function extractAndDisplay(jsonData) {
-            showStatus('جاري تحليل البيانات...', 'info');
+        function displayFileInfo(files) {
+            const fileInfoDiv = document.getElementById('fileInfo');
+            let html = '<h4>الملفات المختارة:</h4>';
+            
+            Array.from(files).forEach((file, index) => {
+                html += `<p>${index + 1}. ${file.name} (${(file.size / 1024).toFixed(1)} KB)</p>`;
+            });
+            
+            fileInfoDiv.innerHTML = html;
+        }
 
+        function extractAndDisplay(jsonData, fileName) {
             // تحليل بنية JSON وتحديد الأعمدة
             const tableStructure = analyzeJsonStructure(jsonData);
             
             if (!tableStructure.hasData) {
-                showStatus('لم يتم العثور على بيانات صالحة في الملف', 'error');
+                showStatus(`لم يتم العثور على بيانات صالحة في الملف ${fileName}`, 'error');
                 return;
             }
 
             // تحويل البيانات إلى تنسيق الجدول
-            tableData = convertJsonToTableData(jsonData, tableStructure);
-            currentColumns = tableStructure.columns;
+            const tableData = convertJsonToTableData(jsonData, tableStructure);
+            
+            // حفظ البيانات في الذاكرة
+            allTablesData[fileName] = {
+                data: tableData,
+                columns: tableStructure.columns
+            };
             
             // حفظ البيانات في localStorage
             saveToLocalStorage();
             
             // عرض البيانات في الجدول
-            displayTable(tableData, tableStructure.columns);
-            
-            showStatus(`تم تحليل ${tableData.length} صف من البيانات بنجاح!`, 'success');
+            displayTable(tableData, tableStructure.columns, fileName);
         }
 
         function analyzeJsonStructure(jsonData) {
@@ -594,83 +660,123 @@
             return tableData;
         }
 
-        function displayTable(data, columns) {
-            const tableBody = document.getElementById('tableBody');
-            const tableHead = document.querySelector('#financialTable thead tr');
+        function displayTable(data, columns, fileName) {
+            const tablesContainer = document.getElementById('tablesContainer');
             
-            // إعادة إنشاء رأس الجدول
-            tableHead.innerHTML = '';
+            // إنشاء قسم الجدول الجديد
+            const tableSection = document.createElement('div');
+            tableSection.className = 'table-section';
+            tableSection.id = `table-${fileName.replace(/[^a-zA-Z0-9]/g, '_')}`;
+            
+            // إنشاء رأس الجدول
+            const tableHeader = document.createElement('div');
+            tableHeader.className = 'table-header';
+            tableHeader.innerHTML = `
+                <h3>${fileName}</h3>
+                <div class="file-actions">
+                    <button class="btn btn-primary" onclick="saveFileChanges('${fileName}')">حفظ التغييرات</button>
+                    <button class="btn btn-delete" onclick="removeTable('${fileName}')">حذف الجدول</button>
+                </div>
+            `;
+            
+            // إنشاء محتوى الجدول
+            const tableContent = document.createElement('div');
+            tableContent.className = 'table-content';
+            
+            // إنشاء الجدول
+            const table = document.createElement('table');
+            table.className = 'financial-table';
+            
+            // إنشاء رأس الجدول
+            const thead = document.createElement('thead');
+            const headerRow = document.createElement('tr');
             
             // إضافة أعمدة الرأس
             columns.forEach(column => {
                 const th = document.createElement('th');
                 th.textContent = column;
-                tableHead.appendChild(th);
+                headerRow.appendChild(th);
             });
             
             // إضافة عمود الإجراءات
             const actionsTh = document.createElement('th');
             actionsTh.textContent = 'الإجراءات';
-            tableHead.appendChild(actionsTh);
-
-            tableBody.innerHTML = '';
-
+            headerRow.appendChild(actionsTh);
+            
+            thead.appendChild(headerRow);
+            table.appendChild(thead);
+            
+            // إنشاء جسم الجدول
+            const tbody = document.createElement('tbody');
+            
             if (data.length === 0) {
-                const colspan = columns.length + 1; // +1 for actions column
-                tableBody.innerHTML = `<tr><td colspan="${colspan}" style="text-align: center; color: #bdc3c7; font-style: italic;">لا توجد بيانات لعرضها</td></tr>`;
-                return;
-            }
+                const colspan = columns.length + 1;
+                tbody.innerHTML = `<tr><td colspan="${colspan}" style="text-align: center; color: #bdc3c7; font-style: italic;">لا توجد بيانات لعرضها</td></tr>`;
+            } else {
+                data.forEach((row, index) => {
+                    const tr = document.createElement('tr');
+                    tr.setAttribute('data-index', index);
+                    tr.setAttribute('data-file', fileName);
+                    
+                    // إضافة خلايا البيانات
+                    columns.forEach(column => {
+                        const cell = document.createElement('td');
+                        const value = row[column];
+                        
+                        if (column === 'label') {
+                            cell.className = 'label-cell';
+                        } else {
+                            cell.className = 'value-cell';
+                        }
+                        
+                        // التحقق من القيمة الفارغة
+                        if (value === '' || value === null || value === undefined) {
+                            cell.className += ' empty-cell';
+                            cell.textContent = '-';
+                        } else {
+                            cell.textContent = value;
+                        }
+                        
+                        tr.appendChild(cell);
+                    });
 
-            data.forEach((row, index) => {
-                const tr = document.createElement('tr');
-                tr.setAttribute('data-index', index);
-                
-                // إضافة خلايا البيانات
-                columns.forEach(column => {
-                    const cell = document.createElement('td');
-                    const value = row[column];
-                    
-                    if (column === 'label') {
-                        cell.className = 'label-cell';
-                    } else {
-                        cell.className = 'value-cell';
-                    }
-                    
-                    // التحقق من القيمة الفارغة
-                    if (value === '' || value === null || value === undefined) {
-                        cell.className += ' empty-cell';
-                        cell.textContent = '-';
-                    } else {
-                        cell.textContent = value;
-                    }
-                    
-                    tr.appendChild(cell);
+                    // إضافة خلية الإجراءات
+                    const actionsCell = document.createElement('td');
+                    actionsCell.innerHTML = `
+                        <div class="action-buttons">
+                            <button class="btn btn-edit" onclick="editRow(${index}, '${fileName}')">تعديل</button>
+                            <button class="btn btn-delete" onclick="deleteRow(${index}, '${fileName}')">حذف</button>
+                        </div>
+                    `;
+                    tr.appendChild(actionsCell);
+
+                    tbody.appendChild(tr);
                 });
-
-                // إضافة خلية الإجراءات
-                const actionsCell = document.createElement('td');
-                actionsCell.innerHTML = `
-                    <div class="action-buttons">
-                        <button class="btn btn-edit" onclick="editRow(${index})">تعديل</button>
-                        <button class="btn btn-delete" onclick="deleteRow(${index})">حذف</button>
-                    </div>
-                `;
-                tr.appendChild(actionsCell);
-
-                tableBody.appendChild(tr);
-            });
+            }
+            
+            table.appendChild(tbody);
+            tableContent.appendChild(table);
+            
+            // تجميع القسم
+            tableSection.appendChild(tableHeader);
+            tableSection.appendChild(tableContent);
+            
+            // إضافة القسم إلى الحاوية
+            tablesContainer.appendChild(tableSection);
         }
 
-        function editRow(index) {
+        function editRow(index, fileName) {
             if (editingRow !== null) {
                 cancelEdit();
             }
 
             editingRow = index;
-            const row = document.querySelector(`tr[data-index="${index}"]`);
+            currentEditingFile = fileName;
+            const row = document.querySelector(`tr[data-index="${index}"][data-file="${fileName}"]`);
             row.classList.add('editing');
 
             const cells = row.cells;
+            const tableData = allTablesData[fileName].data;
             const columns = Object.keys(tableData[index]).filter(key => key !== 'id' && key !== 'rowIndex');
             
             // استبدال كل خلية بإدخال
@@ -684,20 +790,20 @@
             const actionsCell = cells[cells.length - 1];
             actionsCell.innerHTML = `
                 <div class="action-buttons">
-                    <button class="btn btn-save" onclick="saveRow(${index})">حفظ</button>
+                    <button class="btn btn-save" onclick="saveRow(${index}, '${fileName}')">حفظ</button>
                     <button class="btn btn-cancel" onclick="cancelEdit()">إلغاء</button>
                 </div>
             `;
         }
 
-        function saveRow(index) {
-            const row = document.querySelector(`tr[data-index="${index}"]`);
+        function saveRow(index, fileName) {
+            const row = document.querySelector(`tr[data-index="${index}"][data-file="${fileName}"]`);
             const inputs = row.querySelectorAll('.edit-input');
             
             inputs.forEach(input => {
                 const field = input.dataset.field;
                 const value = input.value.trim();
-                tableData[index][field] = value;
+                allTablesData[fileName].data[index][field] = value;
             });
 
             cancelEdit();
@@ -705,33 +811,32 @@
             // حفظ التغييرات في localStorage
             saveToLocalStorage();
             
-            // إعادة عرض الجدول مع الأعمدة الصحيحة
-            displayTable(tableData, currentColumns);
+            // إعادة عرض الجدول
+            displayTable(allTablesData[fileName].data, allTablesData[fileName].columns, fileName);
             
-            showStatus('تم حفظ التغييرات بنجاح', 'success');
+            showStatus(`تم حفظ التغييرات في ${fileName}`, 'success');
         }
 
         function cancelEdit() {
-            if (editingRow !== null) {
-                const row = document.querySelector(`tr[data-index="${editingRow}"]`);
+            if (editingRow !== null && currentEditingFile) {
+                const row = document.querySelector(`tr[data-index="${editingRow}"][data-file="${currentEditingFile}"]`);
                 if (row) {
                     row.classList.remove('editing');
                 }
                 editingRow = null;
-                
-                // إعادة عرض الجدول
-                displayTable(tableData, currentColumns);
+                currentEditingFile = null;
             }
         }
 
-        function deleteRow(index) {
+        function deleteRow(index, fileName) {
             deleteRowIndex = index;
+            currentEditingFile = fileName;
             document.getElementById('deleteModal').style.display = 'block';
         }
 
         function confirmDelete() {
-            if (deleteRowIndex !== null) {
-                tableData.splice(deleteRowIndex, 1);
+            if (deleteRowIndex !== null && currentEditingFile) {
+                allTablesData[currentEditingFile].data.splice(deleteRowIndex, 1);
                 deleteRowIndex = null;
                 closeModal();
                 
@@ -739,24 +844,26 @@
                 saveToLocalStorage();
                 
                 // إعادة عرض الجدول
-                if (tableData.length > 0) {
-                    displayTable(tableData, currentColumns);
+                if (allTablesData[currentEditingFile].data.length > 0) {
+                    displayTable(allTablesData[currentEditingFile].data, allTablesData[currentEditingFile].columns, currentEditingFile);
                 } else {
-                    displayTable([], []);
+                    // إزالة الجدول إذا لم يتبق بيانات
+                    removeTable(currentEditingFile);
                 }
                 
-                showStatus('تم حذف الصف بنجاح', 'success');
+                showStatus(`تم حذف الصف من ${currentEditingFile}`, 'success');
+                currentEditingFile = null;
             }
         }
 
         function closeModal() {
             document.getElementById('deleteModal').style.display = 'none';
             deleteRowIndex = null;
+            currentEditingFile = null;
         }
 
-        function saveAllChanges() {
-            // تحضير البيانات للحفظ (إزالة الحقول الداخلية)
-            const dataToSave = tableData.map(row => {
+        function saveFileChanges(fileName) {
+            const dataToSave = allTablesData[fileName].data.map(row => {
                 const cleanRow = {};
                 Object.keys(row).forEach(key => {
                     if (key !== 'id' && key !== 'rowIndex') {
@@ -766,19 +873,65 @@
                 return cleanRow;
             });
 
-            // إنشاء رابط التحميل
             const dataStr = JSON.stringify(dataToSave, null, 4);
             const dataBlob = new Blob([dataStr], {type: 'application/json'});
             const url = URL.createObjectURL(dataBlob);
             
             const link = document.createElement('a');
             link.href = url;
-            link.download = 'updated_table_data.json';
+            link.download = `updated_${fileName}`;
             link.click();
             
             URL.revokeObjectURL(url);
             
-            showStatus('تم حفظ التغييرات في ملف جديد: updated_table_data.json', 'success');
+            showStatus(`تم حفظ التغييرات في ${fileName}`, 'success');
+        }
+
+        function removeTable(fileName) {
+            // إزالة الجدول من الذاكرة
+            delete allTablesData[fileName];
+            
+            // إزالة العنصر من الصفحة
+            const tableElement = document.getElementById(`table-${fileName.replace(/[^a-zA-Z0-9]/g, '_')}`);
+            if (tableElement) {
+                tableElement.remove();
+            }
+            
+            // حفظ التغييرات في localStorage
+            saveToLocalStorage();
+            
+            showStatus(`تم حذف الجدول ${fileName}`, 'success');
+        }
+
+        function saveAllChanges() {
+            // حفظ جميع الجداول في ملف واحد
+            const allData = {};
+            
+            Object.keys(allTablesData).forEach(fileName => {
+                const dataToSave = allTablesData[fileName].data.map(row => {
+                    const cleanRow = {};
+                    Object.keys(row).forEach(key => {
+                        if (key !== 'id' && key !== 'rowIndex') {
+                            cleanRow[key] = row[key];
+                        }
+                    });
+                    return cleanRow;
+                });
+                allData[fileName] = dataToSave;
+            });
+
+            const dataStr = JSON.stringify(allData, null, 4);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'all_tables_data.json';
+            link.click();
+            
+            URL.revokeObjectURL(url);
+            
+            showStatus(`تم حفظ جميع التغييرات في ملف واحد: all_tables_data.json (${Object.keys(allTablesData).length} جدول)`, 'success');
         }
 
         function showSaveIndicator() {
@@ -794,8 +947,7 @@
         // حفظ البيانات في localStorage
         function saveToLocalStorage() {
             try {
-                localStorage.setItem('tableData', JSON.stringify(tableData));
-                localStorage.setItem('currentColumns', JSON.stringify(currentColumns));
+                localStorage.setItem('allTablesData', JSON.stringify(allTablesData));
             } catch (error) {
                 console.error('خطأ في حفظ البيانات في localStorage:', error);
             }
@@ -804,31 +956,25 @@
         // تحميل البيانات من localStorage
         function loadFromLocalStorage() {
             try {
-                const savedData = localStorage.getItem('tableData');
-                const savedColumns = localStorage.getItem('currentColumns');
-                const savedFileName = localStorage.getItem('fileName');
+                const savedData = localStorage.getItem('allTablesData');
                 
-                if (savedData && savedColumns) {
-                    tableData = JSON.parse(savedData);
-                    currentColumns = JSON.parse(savedColumns);
+                if (savedData) {
+                    allTablesData = JSON.parse(savedData);
                     
-                    if (tableData.length > 0) {
-                        displayTable(tableData, currentColumns);
+                    if (Object.keys(allTablesData).length > 0) {
+                        // إعادة عرض جميع الجداول
+                        Object.keys(allTablesData).forEach(fileName => {
+                            displayTable(allTablesData[fileName].data, allTablesData[fileName].columns, fileName);
+                        });
                         
-                        if (savedFileName) {
-                            showStatus(`تم تحميل البيانات المحفوظة من ملف: ${savedFileName}`, 'success');
-                        } else {
-                            showStatus(`تم تحميل ${tableData.length} صف من البيانات المحفوظة`, 'success');
-                        }
+                        showStatus(`تم تحميل ${Object.keys(allTablesData).length} جدول من البيانات المحفوظة`, 'success');
                         return true;
                     }
                 }
             } catch (error) {
                 console.error('خطأ في تحميل البيانات من localStorage:', error);
                 // مسح البيانات التالفة
-                localStorage.removeItem('tableData');
-                localStorage.removeItem('currentColumns');
-                localStorage.removeItem('fileName');
+                localStorage.removeItem('allTablesData');
             }
             return false;
         }
